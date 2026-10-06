@@ -1,0 +1,28 @@
+{
+  "questions": [
+    { "id": 1, "question": "Sebutkan sesuatu yang biasanya dibawa saat bepergian", "answers": [
+      { "text": "Baju", "score": 35 }, { "text": "Uang", "score": 25 }, { "text": "HP", "score": 20 }, { "text": "KTP", "score": 12 }, { "text": "Tas", "score": 8 } ] },
+    { "id": 2, "question": "Sebutkan makanan yang berwarna merah", "answers": [
+      { "text": "Cabai", "score": 30 }, { "text": "Tomat", "score": 25 }, { "text": "Apel", "score": 20 }, { "text": "Semangka", "score": 15 }, { "text": "Stroberi", "score": 10 } ] },
+    { "id": 3, "question": "Sebutkan hewan peliharaan", "answers": [
+      { "text": "Kucing", "score": 40 }, { "text": "Anjing", "score": 25 }, { "text": "Ikan", "score": 15 }, { "text": "Burung", "score": 12 }, { "text": "Kelinci", "score": 8 } ] },
+    { "id": 4, "question": "Sebutkan alat transportasi umum", "answers": [
+      { "text": "Bus", "score": 30 }, { "text": "Kereta", "score": 25 }, { "text": "Angkot", "score": 20 }, { "text": "Ojek", "score": 15 }, { "text": "Pesawat", "score": 10 } ] },
+    { "id": 5, "question": "Sebutkan benda yang ada di dapur", "answers": [
+      { "text": "Kompor", "score": 30 }, { "text": "Piring", "score": 25 }, { "text": "Pisau", "score": 20 }, { "text": "Wajan", "score": 15 }, { "text": "Panci", "score": 10 } ] },
+    { "id": 6, "question": "Sebutkan minuman yang enak diminum saat cuaca panas", "answers": [
+      { "text": "Es teh", "score": 35 }, { "text": "Es jeruk", "score": 25 }, { "text": "Air putih", "score": 20 }, { "text": "Es kopi", "score": 12 }, { "text": "Es campur", "score": 8 } ] },
+    { "id": 7, "question": "Sebutkan buah yang dijual di pasar", "answers": [
+      { "text": "Pisang", "score": 30 }, { "text": "Jeruk", "score": 25 }, { "text": "Apel", "score": 20 }, { "text": "Mangga", "score": 15 }, { "text": "Semangka", "score": 10 } ] },
+    { "id": 8, "question": "Sebutkan hal yang dilakukan setelah bangun tidur", "answers": [
+      { "text": "Mandi", "score": 35 }, { "text": "Sikat gigi", "score": 25 }, { "text": "Minum air", "score": 18 }, { "text": "Cuci muka", "score": 14 }, { "text": "Sarapan", "score": 8 } ] },
+    { "id": 9, "question": "Sebutkan benda yang ada di kamar tidur", "answers": [
+      { "text": "Kasur", "score": 35 }, { "text": "Bantal", "score": 25 }, { "text": "Lemari", "score": 20 }, { "text": "Guling", "score": 12 }, { "text": "Selimut", "score": 8 } ] },
+    { "id": 10, "question": "Sebutkan pekerjaan yang memakai seragam", "answers": [
+      { "text": "Polisi", "score": 35 }, { "text": "Tentara", "score": 25 }, { "text": "Satpam", "score": 20 }, { "text": "Dokter", "score": 12 }, { "text": "Perawat", "score": 8 } ] },
+    { "id": 11, "question": "Sebutkan aplikasi yang ada di HP", "answers": [
+      { "text": "WhatsApp", "score": 35 }, { "text": "TikTok", "score": 25 }, { "text": "Instagram", "score": 20 }, { "text": "YouTube", "score": 12 }, { "text": "Gojek", "score": 8 } ] },
+    { "id": 12, "question": "Sebutkan tempat yang ramai saat libur", "answers": [
+      { "text": "Pantai", "score": 30 }, { "text": "Mall", "score": 25 }, { "text": "Kebun binatang", "score": 20 }, { "text": "Gunung", "score": 15 }, { "text": "Bioskop", "score": 10 } ] }
+  ]
+}

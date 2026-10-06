@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Family 100 - Panel Host</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#050d33;color:#fff;padding:16px;max-width:1100px;margin:auto}
+h1{font-size:22px;margin:0 0 12px;color:#ffc72c}
+h2{font-size:15px;margin:0 0 8px;color:#ffc72c}
+.card{background:#0c2178;border:2px solid #2c4fd0;border-radius:14px;padding:14px;margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select,input{font:inherit;border-radius:10px;border:2px solid #2c4fd0;background:#0a1a5e;color:#fff;padding:8px 12px}
+button{cursor:pointer;font-weight:700;background:#1646d8}
+button:hover{background:#2a5cf0}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ffc72c}
+button.gold{background:#ffc72c;color:#07154f;border-color:#fff}
+button.red{background:#d9202f;border-color:#fff}
+button.sm{padding:3px 8px;font-size:12px}
+button:disabled{opacity:.35;cursor:not-allowed}
+.stat{display:flex;gap:18px;flex-wrap:wrap;font-weight:700}.stat span b{color:#ffc72c}
+.ans{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:#0a1a5e;margin-bottom:6px}
+.ans.open{background:#1d6b3a}
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.pl{display:flex;justify-content:space-between;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid #2c4fd0;font-size:14px}
+.pl select{padding:2px 4px;font-size:12px}
+#login{max-width:340px;margin:80px auto;text-align:center}
+.small{font-size:12px;opacity:.75}
+</style>
+</head>
+<body>
+<div id="login" class="card" style="display:none">
+  <h1>Panel Host</h1>
+  <input id="key" type="password" placeholder="Admin key" style="width:100%;margin-bottom:8px">
+  <button class="gold" style="width:100%" onclick="saveKey()">Masuk</button>
+</div>
+
+<div id="app" style="display:none">
+  <h1>FAMILY 100 · Panel Host</h1>
+  <div class="card">
+    <div class="stat" id="stat"></div>
+  </div>
+
+  <div class="card">
+    <h2>Kontrol pertandingan</h2>
+    <div class="row">
+      <button class="gold" id="bStart" onclick="act({action:'start'})">Mulai game</button>
+      <button class="gold" id="bNext" onclick="act({action:'next'})">Lanjut</button>
+      <button class="red" id="bStrike" onclick="act({action:'strike'})">Strike</button>
+      <button id="bEnd" onclick="act({action:'endq'})">Akhiri pertanyaan</button>
+      <input id="sec" type="number" value="15" min="0" style="width:80px"> 
+      <button onclick="act({action:'timer',sec:+$('sec').value})">Set timer (detik)</button>
+      <button onclick="act({action:'timer',sec:0})">Stop timer</button>
+    </div>
+    <p class="small">Jawaban pemain di chat otomatis terbuka jika cocok. Gunakan tombol di bawah untuk membuka jawaban manual.</p>
+  </div>
+
+  <div class="card">
+    <h2 id="qtitle">Pertanyaan</h2>
+    <div id="answers"></div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px">
+      <h2 style="margin:0">Lobi &amp; tim</h2>
+      <div class="row"><button id="bLock" onclick="act({action:'lock',value:!S.locked})"></button></div>
+    </div>
+    <div class="teams" id="teams"></div>
+  </div>
+
+  <div class="card">
+    <h2>TikTok &amp; testing</h2>
+    <div class="row">
+      <input id="user" placeholder="@username TikTok">
+      <button onclick="act({action:'connect',username:$('user').value})">Sambung</button>
+      <button onclick="act({action:'disconnect'})">Putus</button>
+      <span id="tt" class="small"></span>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <input id="snick" placeholder="Nama (simulasi)" style="width:140px">
+      <input id="stext" placeholder="!join atau jawaban" style="width:200px">
+      <button onclick="act({action:'sim',nick:$('snick').value||'tester',text:$('stext').value});$('stext').value=''">Kirim chat simulasi</button>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="red" onclick="if(confirm('Reset semua tim, skor, dan bracket?'))act({action:'reset'})">Reset turnamen</button>
+      <a href="/live" target="_blank" style="color:#ffc72c">Buka layar /live</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let KEY = localStorage.getItem('f100key') || '', S = null, ws;
+
+function saveKey() { KEY = $('key').value; localStorage.setItem('f100key', KEY); start(); }
+function act(b) {
+  fetch('/api/admin', { method: 'POST', headers: { 'content-type': 'application/json', 'x-admin-key': KEY }, body: JSON.stringify(b) })
+    .then(r => r.json()).then(r => { if (!r.ok) alert(r.error || 'Gagal'); });
+}
+
+function start() {
+  if (!KEY) { $('login').style.display = 'block'; return; }
+  $('login').style.display = 'none'; $('app').style.display = 'block';
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws?key=' + encodeURIComponent(KEY));
+  ws.onmessage = ev => { const m = JSON.parse(ev.data); if (m.type === 'state') { S = m.data; render(); } };
+  ws.onclose = () => setTimeout(start, 2000);
+}
+
+function render() {
+  const m = S.matches[S.cur], ph = S.phase;
+  const nm = k => (k ? S.teams[k].name : '-');
+  $('stat').innerHTML = `<span>Fase: <b>${ph}</b></span><span>Match: <b>${m.label}</b> (${nm(m.t[0])} ${m.s[0]} : ${m.s[1]} ${nm(m.t[1])})</span>
+    <span>Main: <b>${nm(S.playing)}</b></span><span>Strike: <b>${S.strikes}/3</b></span><span>Pot: <b>${S.pot}</b></span>`;
+  $('bStart').disabled = ph !== 'lobby';
+  $('bNext').disabled = !['ready', 'qend', 'matchend'].includes(ph);
+  $('bNext').textContent = ph === 'matchend' ? (S.cur >= 2 ? 'Tampilkan juara' : 'Match berikutnya') : ph === 'qend' && m.qs >= 3 ? 'Lanjut / selesaikan match' : 'Pertanyaan berikutnya';
+  $('bStrike').disabled = !['question', 'steal'].includes(ph);
+  $('bEnd').disabled = !['question', 'steal'].includes(ph);
+  $('qtitle').textContent = S.q ? S.q.text : 'Belum ada pertanyaan';
+  $('answers').innerHTML = S.q ? S.q.answers.map((a, i) =>
+    `<div class="ans ${a.open ? 'open' : ''}"><span>${i + 1}. ${esc(a.text)} <b>${a.score}</b> ${a.by ? '· ' + esc(a.by) : ''}</span>
+     <button class="sm" ${a.open || !['question', 'steal', 'qend'].includes(ph) ? 'disabled' : ''} onclick="act({action:'reveal',i:${i}})">${ph === 'steal' ? 'Steal benar' : 'Buka'}</button></div>`).join('') : '';
+  $('bLock').textContent = S.locked ? '🔒 Dikunci (klik untuk buka)' : '🔓 Kunci pendaftaran';
+  $('teams').innerHTML = Object.entries(S.teams).map(([k, t]) => `<div>
+    <div class="row"><input value="${esc(t.name)}" style="width:130px" onchange="act({action:'rename',team:'${k}',name:this.value})"><b>${t.players.length}/5</b></div>
+    ${t.players.map(p => `<div class="pl"><span>${esc(p.nick)} <span class="small">${p.pts}</span></span><span>
+      <select onchange="act({action:'move',id:'${esc(p.id)}',to:this.value})">${Object.keys(S.teams).map(x => `<option ${x === k ? 'selected' : ''}>${x}</option>`).join('')}</select>
+      <button class="sm red" onclick="act({action:'kick',id:'${esc(p.id)}'})">Kick</button></span></div>`).join('')}</div>`).join('');
+  $('tt').textContent = `TikTok: ${S.tiktok.state}${S.tiktok.username ? ' (@' + S.tiktok.username + ')' : ''}`;
+}
+start();
+</script>
+</body>
+</html>

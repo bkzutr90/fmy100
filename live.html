@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Family 100 LIVE</title>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#030a2b;--blue:#1646d8;--bright:#3a86ff;--gold:#ffc72c;--red:#ff2d3d}
+html,body{height:100%;background:#000;overflow:hidden;font-family:Poppins,system-ui,sans-serif;color:#fff}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 30%,#2159f0 0,#0b2a9a 42%,var(--navy) 100%)}
+.led{background-image:radial-gradient(rgba(130,180,255,.32) 2px,transparent 2.6px);background-size:14px 14px}
+.beam{position:absolute;top:-30px;width:170px;height:540px;background:linear-gradient(rgba(255,255,255,.3),transparent);
+  clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);transform-origin:50% 0;animation:sway 7s ease-in-out infinite alternate;opacity:.45}
+.beam.g{background:linear-gradient(rgba(255,199,44,.4),transparent)}
+@keyframes sway{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+.floor{position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(transparent,rgba(3,10,43,.9))}
+.ring{position:absolute;left:50%;bottom:-210px;width:1100px;height:330px;margin-left:-550px;border:6px solid var(--gold);border-radius:50%;opacity:.35}
+
+/* logo oval */
+#logo{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:230px;height:84px;border-radius:50%;
+  border:6px solid var(--gold);background:radial-gradient(#2c63ff,#0d2fb5);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'Lilita One',Impact,sans-serif;line-height:.85;text-shadow:0 3px 0 #0a1f7a;box-shadow:0 0 30px rgba(255,199,44,.55);z-index:5}
+#logo b{font-size:30px;font-weight:400}#logo i{font-style:normal;font-size:44px}
+#mlabel{position:absolute;left:50%;top:104px;transform:translateX(-50%);padding:4px 22px;border-radius:20px;background:rgba(3,10,43,.7);
+  border:2px solid var(--gold);font-weight:800;letter-spacing:.06em;font-size:15px;color:var(--gold);z-index:5;white-space:nowrap}
+
+section{position:absolute;inset:0;display:none}
+section.on{display:block}
+
+/* game */
+#game .side{position:absolute;top:140px;width:250px}
+#tL{left:22px}#tR{right:22px}
+.team{border:4px solid var(--gold);border-radius:22px;background:linear-gradient(#143bc4,#0a1f7a);padding:14px;text-align:center;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.35);transition:.3s}
+.team h3{font-family:'Lilita One';font-weight:400;font-size:26px;letter-spacing:.02em}
+.team .sc{font-family:'Lilita One';font-size:84px;line-height:1;color:var(--gold);text-shadow:0 4px 0 #7a5400}
+.team .xs{height:38px;display:flex;justify-content:center;gap:8px;margin:2px 0 6px}
+.x{width:36px;height:36px;border-radius:8px;border:2px solid rgba(255,255,255,.25);color:transparent;font-weight:800;font-size:24px;line-height:32px}
+.x.on{background:var(--red);border-color:#fff;color:#fff;box-shadow:0 0 14px var(--red)}
+.team ul{list-style:none;font-size:14px;font-weight:600;min-height:100px;text-align:left}
+.team li{padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.08);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team.play{box-shadow:0 0 0 4px #fff,0 0 40px var(--gold);transform:scale(1.03)}
+.team.steal{border-color:var(--red);box-shadow:0 0 0 4px #fff,0 0 40px var(--red)}
+.tag{margin-top:8px;font-weight:800;font-size:13px;color:var(--gold);height:18px}
+.team.empty{opacity:.5;padding:60px 10px}
+
+#center{position:absolute;left:300px;right:300px;top:140px}
+#qbox{border:4px solid var(--gold);border-radius:20px;background:linear-gradient(#0f2fa5,#071a66);padding:14px 20px;text-align:center;
+  font-family:'Lilita One';font-size:26px;line-height:1.15;min-height:84px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(58,134,255,.6)}
+#board{display:grid;grid-template-columns:1fr;gap:6px;margin-top:10px}
+.ans{height:42px;border-radius:12px;display:flex;align-items:center;padding:0 12px;gap:12px;background:linear-gradient(#1a46d6,#0d2c9c);
+  border:3px solid #6f9cff;font-family:'Lilita One';font-size:23px;position:relative;overflow:hidden}
+.ans b{width:30px;height:30px;border-radius:50%;background:#071a66;border:2px solid var(--gold);text-align:center;line-height:26px;font-weight:400;font-size:18px;flex:none}
+.ans .t{flex:1;opacity:0;white-space:nowrap}.ans .s{font-style:normal;width:56px;text-align:center;background:var(--gold);color:#07154f;border-radius:8px;opacity:0}
+.ans:not(.open) .t::before{content:'';}
+.ans.open{background:linear-gradient(#ffe27a,#ffc72c);color:#07154f;border-color:#fff;animation:flip .6s}
+.ans.open .t,.ans.open .s{opacity:1}.ans.open .s{background:#07154f;color:var(--gold)}
+.ans.open b{background:#07154f;color:var(--gold)}
+@keyframes flip{0%{transform:rotateX(90deg)}60%{transform:rotateX(-12deg)}100%{transform:rotateX(0)}}
+#info{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+#pot{font-family:'Lilita One';font-size:26px;padding:4px 20px;border-radius:14px;background:rgba(3,10,43,.75);border:3px solid var(--gold)}
+#pot span{color:var(--gold)}
+#timer{width:72px;height:72px;border-radius:50%;border:5px solid var(--gold);background:#071a66;font-family:'Lilita One';font-size:34px;
+  display:flex;align-items:center;justify-content:center}
+#timer.low{border-color:var(--red);color:var(--red);animation:pulse .5s infinite alternate}
+@keyframes pulse{to{transform:scale(1.12)}}
+
+/* bracket strip */
+#bracket{position:absolute;left:22px;right:22px;bottom:12px;display:flex;gap:10px;justify-content:center;z-index:4}
+.bm{min-width:210px;padding:6px 12px;border-radius:12px;background:rgba(3,10,43,.8);border:2px solid #4a74e8;font-size:12px;font-weight:600}
+.bm.cur{border-color:var(--gold);box-shadow:0 0 14px rgba(255,199,44,.6)}
+.bm h6{font-size:11px;color:var(--gold);font-weight:800;margin-bottom:2px}
+.bm div{display:flex;justify-content:space-between}.bm .w{color:var(--gold);font-weight:800}
+
+/* lobby */
+#lobby h1,#champ h1{position:absolute;left:0;right:0;top:112px;text-align:center;font-family:'Lilita One';font-weight:400;font-size:36px}
+#lgrid{position:absolute;left:60px;right:60px;top:170px;display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}
+#lgrid .team{padding:10px 14px;text-align:left}
+#lgrid h3{display:flex;justify-content:space-between;font-size:22px}
+#lgrid ul{display:grid;grid-template-columns:1fr 1fr;gap:0 8px;min-height:0}
+#lnote{position:absolute;left:0;right:0;bottom:70px;text-align:center;font-family:'Lilita One';font-size:28px;color:var(--gold)}
+
+/* champion */
+#champ .trophy{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:90px}
+#champ .cn{position:absolute;left:0;right:0;top:250px;text-align:center;font-family:'Lilita One';font-size:70px;color:var(--gold);text-shadow:0 5px 0 #7a5400}
+#champ .cs{position:absolute;left:0;right:0;top:335px;text-align:center;font-family:'Lilita One';font-size:34px}
+#rank{position:absolute;left:150px;right:150px;top:400px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px;font-weight:800;font-size:17px}
+#rank div{display:flex;justify-content:space-between;padding:5px 12px;border-radius:10px;background:rgba(3,10,43,.65);border:2px solid #4a74e8}
+#rank h4{grid-column:span 2;color:var(--gold);font-family:'Lilita One';font-weight:400;font-size:22px}
+canvas{position:absolute;inset:0;pointer-events:none;z-index:20}
+
+/* overlays */
+#banner,#bigx{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%) scale(.6);text-align:center;font-family:'Lilita One';z-index:30;
+  opacity:0;pointer-events:none}
+#banner{font-size:84px;color:var(--gold);text-shadow:0 6px 0 #7a5400,0 0 40px rgba(255,199,44,.8)}
+#bigx{font-size:300px;color:var(--red);text-shadow:0 0 60px var(--red);line-height:1}
+.show{animation:pop 1.5s forwards}
+@keyframes pop{0%{opacity:0;transform:translateY(-50%) scale(.5)}15%{opacity:1;transform:translateY(-50%) scale(1.1)}80%{opacity:1;transform:translateY(-50%) scale(1)}100%{opacity:0;transform:translateY(-50%) scale(1)}}
+#toasts{position:absolute;left:18px;bottom:96px;z-index:25;display:flex;flex-direction:column;gap:6px}
+.toast{padding:8px 16px;border-radius:12px;background:rgba(3,10,43,.9);border:2px solid var(--gold);font-weight:800;font-size:15px;animation:tin .3s}
+@keyframes tin{from{transform:translateX(-30px);opacity:0}}
+#snd{position:absolute;right:10px;top:8px;z-index:40;font-size:12px;background:rgba(0,0,0,.6);padding:4px 10px;border-radius:8px;display:none}
+@media (prefers-reduced-motion:reduce){.beam{animation:none}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="led" style="position:absolute;inset:0;opacity:.6"></div>
+  <div class="beam" style="left:60px;animation-delay:-1s"></div>
+  <div class="beam g" style="left:340px;animation-delay:-3s"></div>
+  <div class="beam" style="left:560px;animation-delay:-5s"></div>
+  <div class="beam g" style="left:800px;animation-delay:-2s"></div>
+  <div class="beam" style="left:1050px;animation-delay:-4s"></div>
+  <div class="ring"></div><div class="floor"></div>
+
+  <div id="logo"><b>FAMILY</b><i>100</i></div>
+  <div id="mlabel"></div>
+
+  <section id="lobby">
+    <h1>LOBBY · ketik <span style="color:var(--gold)">!join</span> di komentar</h1>
+    <div id="lgrid"></div>
+    <div id="lnote"></div>
+  </section>
+
+  <section id="game">
+    <div class="side" id="tL"></div>
+    <div id="center">
+      <div id="qbox"></div>
+      <div id="board"></div>
+      <div id="info"><div id="pot">POT <span id="potv">0</span></div><div id="timer">--</div></div>
+    </div>
+    <div class="side" id="tR"></div>
+  </section>
+
+  <section id="champ">
+    <h1>JUARA FAMILY 100</h1>
+    <div class="trophy">🏆</div><div class="cn" id="cn"></div><div class="cs" id="cs"></div>
+    <div id="rank"></div>
+  </section>
+
+  <div id="bracket"></div>
+  <div id="toasts"></div>
+  <div id="banner"></div><div id="bigx">✕</div>
+  <canvas id="cv" width="1280" height="720"></canvas>
+  <div id="snd">Klik layar untuk mengaktifkan suara</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S = null, off = 0, lastLeft = null, confettiOn = false;
+
+// skala stage 1280x720 agar pas di OBS / browser
+const fit = () => { $('stage').style.transform = `translate(-50%,-50%) scale(${Math.min(innerWidth/1280, innerHeight/720)})`; };
+addEventListener('resize', fit); fit();
+
+// ---------- SOUND (disintesis, tanpa file mp3) ----------
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+const mute = location.search.includes('sound=0');
+const unlock = () => { AC.resume(); $('snd').style.display = 'none'; };
+addEventListener('pointerdown', unlock);
+setTimeout(() => { if (AC.state !== 'running' && !mute) $('snd').style.display = 'block'; }, 1500);
+function tone(f, d, type = 'sine', v = .18, at = 0) {
+  if (mute) return;
+  const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + at;
+  o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .02); g.gain.exponentialRampToValueAtTime(.001, t + d);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t + d + .05);
+}
+function applause() {
+  if (mute) return;
+  const len = AC.sampleRate * 3, buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (Math.random() > .9 ? 1 : .25);
+  const s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
+  f.type = 'bandpass'; f.frequency.value = 2200; s.buffer = buf;
+  g.gain.setValueAtTime(.0, AC.currentTime); g.gain.linearRampToValueAtTime(.25, AC.currentTime + .4); g.gain.linearRampToValueAtTime(0, AC.currentTime + 3);
+  s.connect(f).connect(g).connect(AC.destination); s.start();
+}
+const sfx = {
+  ding: () => { tone(880, .4, 'sine', .25); tone(1318, .6, 'sine', .2, .12); },
+  buzz: () => { tone(110, .7, 'sawtooth', .3); tone(117, .7, 'square', .15); },
+  start: () => [392, 523, 659, 784].forEach((f, i) => tone(f, .3, 'triangle', .2, i * .12)),
+  siren: () => { for (let i = 0; i < 4; i++) tone(i % 2 ? 600 : 900, .25, 'square', .12, i * .25); },
+  pop: () => tone(660, .15, 'triangle', .15),
+  tick: () => tone(1000, .08, 'square', .1),
+  victory: () => [523, 659, 784, 1046, 784, 1046, 1318].forEach((f, i) => tone(f, .4, 'triangle', .22, i * .16)),
+};
+
+// ---------- OVERLAY ----------
+function banner(t) { const b = $('banner'); b.textContent = t; b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
+function bigX() { const b = $('bigx'); b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
+function toast(t) {
+  const e = document.createElement('div'); e.className = 'toast'; e.textContent = t; $('toasts').appendChild(e);
+  setTimeout(() => e.remove(), 4000);
+  while ($('toasts').children.length > 4) $('toasts').firstChild.remove();
+}
+const tn = k => S?.teams[k]?.name || k;
+
+function onEvent(e) {
+  switch (e.kind) {
+    case 'start': sfx.start(); break;
+    case 'correct': sfx.ding(); if (e.by) toast(`✅ ${e.by} menjawab benar +${e.score}`); break;
+    case 'strike': sfx.buzz(); bigX(); break;
+    case 'steal': sfx.siren(); banner('STEAL CHANCE!'); break;
+    case 'stealok': banner('STEAL BERHASIL!'); break;
+    case 'stealfail': sfx.buzz(); banner('STEAL GAGAL!'); break;
+    case 'timeup': sfx.buzz(); banner('WAKTU HABIS!'); break;
+    case 'award': if (e.team) toast(`💰 ${tn(e.team)} mendapat ${e.pot} poin`); break;
+    case 'matchend': sfx.victory(); applause(); banner(`${tn(e.winner)} MENANG!`); break;
+    case 'champion': sfx.victory(); applause(); break;
+    case 'join': sfx.pop(); toast(`🎉 ${e.nick} bergabung → ${tn(e.team)}`); break;
+    case 'joinfail': toast(`⚠️ ${e.nick}: ${e.why}`); break;
+  }
+}
+
+// ---------- RENDER ----------
+function teamCard(k) {
+  if (!k) return '<div class="team empty"><h3>MENUNGGU</h3></div>';
+  const t = S.teams[k], m = S.matches[S.cur], idx = m.t.indexOf(k);
+  const playing = S.playing === k && S.phase === 'question', stealing = S.stealer === k && S.phase === 'steal';
+  const xs = [0, 1, 2].map(i => `<span class="x ${S.playing === k && i < S.strikes ? 'on' : ''}">✕</span>`).join('');
+  return `<div class="team ${playing ? 'play' : ''} ${stealing ? 'play steal' : ''}">
+    <h3>${esc(t.name)}</h3><div class="sc">${m.s[idx]}</div><div class="xs">${xs}</div>
+    <ul>${t.players.map(p => `<li>${esc(p.nick)}</li>`).join('')}</ul>
+    <div class="tag">${playing ? 'GILIRAN MAIN' : stealing ? 'KESEMPATAN STEAL' : ''}</div></div>`;
+}
+
+function renderBoard() {
+  const b = $('board'), q = S.q;
+  if (!q || S.phase === 'ready') { b.innerHTML = ''; b.dataset.k = ''; return; }
+  if (b.dataset.k !== String(S.qid)) {
+    b.dataset.k = S.qid;
+    b.innerHTML = q.answers.map((_, i) => `<div class="ans" id="a${i}"><b>${i + 1}</b><span class="t"></span><i class="s"></i></div>`).join('');
+  }
+  q.answers.forEach((a, i) => {
+    const e = $('a' + i);
+    if (a.open && !e.classList.contains('open')) {
+      e.querySelector('.t').textContent = a.text.toUpperCase();
+      e.querySelector('.s').textContent = a.score;
+      e.classList.add('open');
+    }
+  });
+}
+
+function render() {
+  const ph = S.phase, m = S.matches[S.cur];
+  $('lobby').classList.toggle('on', ph === 'lobby');
+  $('champ').classList.toggle('on', ph === 'champion');
+  $('game').classList.toggle('on', !['lobby', 'champion'].includes(ph));
+  $('mlabel').textContent = ph === 'lobby' ? 'PENDAFTARAN PEMAIN' : ph === 'champion' ? 'HASIL AKHIR' : m.label;
+  $('mlabel').style.display = ph === 'champion' ? 'none' : 'block';
+
+  if (ph === 'lobby') {
+    $('lgrid').innerHTML = Object.entries(S.teams).map(([k, t]) =>
+      `<div class="team"><h3><span>${esc(t.name)}</span><span style="color:var(--gold)">${t.players.length}/5</span></h3>
+       <ul>${t.players.map(p => `<li>${esc(p.nick)}</li>`).join('')}</ul></div>`).join('');
+    $('lnote').textContent = S.locked ? '🔒 Pendaftaran dikunci' : 'Maksimal 5 pemain per tim';
+  } else if (ph === 'champion') {
+    const w = S.champion;
+    $('cn').textContent = tn(w);
+    $('cs').textContent = `${S.teams[w].total} poin`;
+    const teams = Object.entries(S.teams).sort((a, b) => b[1].total - a[1].total);
+    const players = Object.values(S.teams).flatMap(t => t.players).sort((a, b) => b.pts - a.pts).slice(0, 5);
+    const medal = ['🥇', '🥈', '🥉', '4️⃣'];
+    $('rank').innerHTML = '<h4>Klasemen Tim</h4>' + teams.map(([k, t], i) => `<div><span>${medal[i]} ${esc(t.name)}</span><span>${t.total}</span></div>`).join('')
+      + '<h4>Pemain Terbaik</h4>' + players.map((p, i) => `<div><span>${i + 1}. ${esc(p.nick)}</span><span>${p.pts}</span></div>`).join('');
+    if (!confettiOn) startConfetti();
+  } else {
+    $('tL').innerHTML = teamCard(m.t[0]); $('tR').innerHTML = teamCard(m.t[1]);
+    $('qbox').textContent = S.q && ph !== 'ready' ? S.q.text : (ph === 'matchend' ? `${tn(m.winner)} MENANG!` : 'BERSIAP... pertandingan segera dimulai');
+    $('potv').textContent = S.pot;
+    renderBoard();
+  }
+
+  $('bracket').innerHTML = S.matches.map((x, i) => {
+    const row = j => `<div class="${x.winner && x.winner === x.t[j] ? 'w' : ''}"><span>${x.t[j] ? esc(tn(x.t[j])) : '???'}</span><span>${x.t[j] ? x.s[j] : ''}</span></div>`;
+    return `<div class="bm ${i === S.cur && ph !== 'lobby' && ph !== 'champion' ? 'cur' : ''}"><h6>${x.label}</h6>${row(0)}${row(1)}</div>`;
+  }).join('');
+}
+
+// timer (pakai offset jam server)
+setInterval(() => {
+  if (!S) return;
+  const el = $('timer');
+  const active = ['question', 'steal'].includes(S.phase) && S.timerEnd;
+  if (!active) { el.textContent = '--'; el.classList.remove('low'); lastLeft = null; return; }
+  const left = Math.max(0, Math.ceil((S.timerEnd - (Date.now() + off)) / 1000));
+  el.textContent = String(left).padStart(2, '0');
+  el.classList.toggle('low', left <= 3);
+  if (left !== lastLeft && left > 0 && left <= 3) sfx.tick();
+  lastLeft = left;
+}, 200);
+
+// confetti
+function startConfetti() {
+  confettiOn = true;
+  const c = $('cv').getContext('2d'), cols = ['#ffc72c', '#3a86ff', '#fff', '#ff2d3d'];
+  const ps = Array.from({ length: 160 }, () => ({ x: Math.random() * 1280, y: -Math.random() * 720, s: 6 + Math.random() * 8, v: 2 + Math.random() * 4, c: cols[Math.floor(Math.random() * 4)], r: Math.random() * 6 }));
+  (function loop() {
+    if (S?.phase !== 'champion') { confettiOn = false; c.clearRect(0, 0, 1280, 720); return; }
+    c.clearRect(0, 0, 1280, 720);
+    ps.forEach(p => { p.y += p.v; p.r += .1; if (p.y > 740) p.y = -10; c.save(); c.translate(p.x, p.y); c.rotate(p.r); c.fillStyle = p.c; c.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); c.restore(); });
+    requestAnimationFrame(loop);
+  })();
+}
+
+// ---------- WEBSOCKET ----------
+function connect() {
+  const ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws');
+  ws.onmessage = ev => {
+    const { type, data } = JSON.parse(ev.data);
+    if (type === 'state') { S = data; off = data.now - Date.now(); render(); }
+    else if (type === 'event') onEvent(data);
+  };
+  ws.onclose = () => setTimeout(connect, 2000);
+}
+connect();
+</script>
+</body>
+</html>
