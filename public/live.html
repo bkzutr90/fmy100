@@ -62,6 +62,7 @@ section.on{display:block}
 .ans.open{background:linear-gradient(#ffe27a,#ffc72c);color:#07154f;border-color:#fff;animation:flip .6s}
 .ans.open .t,.ans.open .s{opacity:1}.ans.open .s{background:#07154f;color:var(--gold)}
 .ans.open b{background:#07154f;color:var(--gold)}
+.ans.open.missed{background:linear-gradient(#d6e4ff,#8fb3ff);border-color:#fff}
 @keyframes flip{0%{transform:rotateX(90deg)}60%{transform:rotateX(-12deg)}100%{transform:rotateX(0)}}
 #info{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
 #pot{font-family:'Lilita One';font-size:26px;padding:4px 20px;border-radius:14px;background:rgba(3,10,43,.75);border:3px solid var(--gold)}
@@ -209,6 +210,7 @@ const activeOf = k => { const t = S?.teams[k]; return t && t.players.length ? t.
 function onEvent(e) {
   switch (e.kind) {
     case 'start': sfx.start(); break;
+    case 'reveal': tone(520, .25, 'triangle', .15); break;
     case 'correct': sfx.ding(); if (e.by) toast(`✅ ${e.by} menjawab benar +${e.score}`); break;
     case 'strike': sfx.buzz(); bigX(); break;
     case 'steal': sfx.siren(); banner('STEAL CHANCE!'); break;
@@ -248,6 +250,7 @@ function renderBoard() {
     if (a.open && !e.classList.contains('open')) {
       e.querySelector('.t').textContent = a.text.toUpperCase();
       e.querySelector('.s').textContent = a.score;
+      if (a.missed) e.classList.add('missed');
       e.classList.add('open');
     }
   });
