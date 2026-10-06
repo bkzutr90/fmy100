@@ -52,7 +52,14 @@ const view = admin => ({
 
 // ---------- WEBSOCKET ----------
 const app = express();
-app.use(cors(), express.json(), express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+const PUB = path.join(__dirname, 'public');
+['live.html', 'admin.html'].forEach(f => {
+  if (!fs.existsSync(path.join(PUB, f))) console.error(`[ERROR] File public/${f} tidak ditemukan. Pastikan folder "public" ikut diupload ke GitHub.`);
+});
+app.use(cors(), express.json(), express.static(PUB, { extensions: ['html'] }));
+app.get('/', (_, res) => res.redirect('/live'));
+app.get('/live', (_, res) => res.sendFile(path.join(PUB, 'live.html')));
+app.get('/admin', (_, res) => res.sendFile(path.join(PUB, 'admin.html')));
 app.get('/health', (_, res) => res.send('ok'));
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
