@@ -18,6 +18,8 @@ const AUTO_NEXT = process.env.AUTO_NEXT !== '1';        // pertanyaan / match be
 const NEXT_MS = (+process.env.NEXT_DELAY_S || 10) * 1000;   // jeda setelah pertanyaan selesai
 const MATCH_MS = (+process.env.MATCH_DELAY_S || 10) * 1000; // jeda setelah match selesai
 const READY_MS = (+process.env.READY_DELAY_S || 10) * 1000;  // jeda 'bersiap' sebelum pertanyaan pertama match
+const AUTO_RESTART = process.env.AUTO_RESTART !== '1';    // setelah juara tampil, otomatis kembali ke lobby untuk !join lagi
+const CHAMP_MS = (+process.env.CHAMP_DELAY_S || 20) * 1000; // lama layar juara tampil
 const REVEAL_GAP_MS = +process.env.REVEAL_GAP_MS || 900;  // jeda antar jawaban yang dibuka otomatis di akhir pertanyaan
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const STATE_FILE = path.join(DATA_DIR, 'state.json');
@@ -87,6 +89,8 @@ const curM = () => S.matches[S.cur];
 const other = (m, k) => (m.t[0] === k ? m.t[1] : m.t[0]);
 // giliran menjawab bergantian di dalam tim: pemain aktif = players[turn % jumlah pemain]
 const activeOf = k => { const t = S.teams[k]; return t?.players.length ? t.players[(t.turn || 0) % t.players.length] : null; };
+// saat steal, yang menjawab hanya kapten tim (pemain pertama / pertama join)
+const answerer = k => (S.phase === 'steal' ? S.teams[k]?.players[0] : activeOf(k)) || null;
 const adv = k => { if (S.teams[k]) S.teams[k].turn = (S.teams[k].turn || 0) + 1; };
 
 // lanjut otomatis ke langkah berikutnya (pertanyaan baru / match berikutnya / juara)
@@ -96,6 +100,20 @@ function schedule(ms) {
   if (!AUTO_NEXT) return;
   S.nextAt = Date.now() + ms;
   autoT = setTimeout(() => { if (['ready', 'qend', 'matchend'].includes(S.phase)) next(); }, ms);
+}
+
+// setelah layar juara: reset turnamen dan kembali ke lobby (tim kosong, !join dibuka lagi)
+let champT;
+function scheduleLobby() {
+  clearTimeout(champT); S.nextAt = 0;
+  if (!AUTO_RESTART) return;
+  S.nextAt = Date.now() + CHAMP_MS;
+  champT = setTimeout(toLobby, CHAMP_MS);
+}
+function toLobby() {
+  clearTimeout(autoT); clearTimeout(revealT); clearTimeout(champT); setTimer(0);
+  S = { ...fresh(), tiktok: S.tiktok, used: S.used }; // koneksi TikTok & riwayat soal dipertahankan
+  emit('lobby'); push();
 }
 
 // akhir pertanyaan: buka sisa jawaban satu per satu (tanpa poin), baru lanjut otomatis
@@ -131,7 +149,7 @@ function join(u) {
   const k = KEYS.find(k => S.teams[k].players.length < MAX_PER_TEAM);
   if (!k) return emit('joinfail', { nick: u.nick, why: 'Semua tim penuh' });
   S.teams[k].players.push({ id: u.id, nick: u.nick, avatar: u.avatar || '', pts: 0 });
-  emit('join', { nick: u.nick, team: k });
+  emit('join', { nick: u.nick, team: k, avatar: u.avatar || '' });
   push();
 }
 
@@ -144,7 +162,7 @@ function startQuestion() {
   const q = QUESTIONS[i];
   S.q = {
     text: q.question,
-    answers: [...q.answers].sort((a, b) => b.score - a.score).map(a => ({ text: a.text, score: a.score, open: false, by: '' })),
+    answers: [...q.answers].sort((a, b) => b.score - a.score).map(a => ({ text: a.text, alias: a.alias || [], score: a.score, open: false, by: '' })),
   };
   S.qid++; S.playing = m.t[m.qs % 2]; S.stealer = null; m.qs++;
   S.strikes = 0; S.pot = 0; S.phase = 'question';
@@ -163,7 +181,7 @@ function reveal(i, by) {
   if (!a || a.open || !['question', 'steal', 'qend'].includes(S.phase)) return;
   a.open = true; a.by = by?.nick || '';
   if (S.phase === 'qend') return push(); // buka sisa jawaban tanpa poin
-  if (by) adv(S.phase === 'question' ? S.playing : S.stealer); // jawaban dari chat: giliran pindah ke pemain berikutnya
+  if (by && S.phase === 'question') adv(S.playing); // jawaban dari chat: giliran pindah ke pemain berikutnya (steal tidak memakai giliran)
   S.pot += a.score;
   const p = by && S.teams[teamOf(by.id)]?.players.find(p => p.id === by.id);
   if (p) p.pts += a.score;
@@ -179,7 +197,7 @@ function strike() {
     if (S.strikes >= 3) { S.phase = 'steal'; S.stealer = other(curM(), S.playing); emit('steal'); }
     setTimer(ANSWER_SEC); push();
   } else if (S.phase === 'steal') {
-    adv(S.stealer); emit('stealfail'); award(S.playing);
+    emit('stealfail'); award(S.playing);
   }
 }
 
@@ -199,9 +217,25 @@ function next() {
     return startQuestion();
   }
   if (S.phase === 'matchend') {
-    if (S.cur >= 2) { S.phase = 'champion'; emit('champion'); return push(); }
+    if (S.cur >= 2) { S.phase = 'champion'; scheduleLobby(); emit('champion'); return push(); }
     S.cur++; S.phase = 'ready'; S.q = null; schedule(READY_MS); push();
   }
+}
+
+// Pencocokan jawaban. Mengembalikan index jawaban, -1 = salah, -2 = ambigu.
+// 1) sama persis / chat memuat jawaban (atau alias di questions.json)
+// 2) sebagian: semua kata yang diketik ada di dalam jawaban, mis. "kopi" -> "Kopi sachet" (hanya jika cocok ke satu jawaban)
+const words = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9]+/).filter(Boolean);
+function findAnswer(text) {
+  const n = norm(text);
+  const open = S.q.answers.map((a, i) => ({ a, i })).filter(x => !x.a.open);
+  const full = open.find(({ a }) => [a.text, ...(a.alias || [])].some(t => { const tn = norm(t); return tn === n || (tn.length >= 3 && n.includes(tn)); }));
+  if (full) return full.i;
+  const w = words(text);
+  if (!w.length || w.length > 3 || n.length < 3) return -1;
+  const part = open.filter(({ a }) => { const aw = words(a.text); return w.every(x => aw.includes(x)); });
+  if (part.length === 1) return part[0].i;
+  return part.length > 1 ? -2 : -1;
 }
 
 // chat -> !join atau jawaban dari tim yang sedang main / steal
@@ -211,13 +245,11 @@ function handleChat(u, text) {
   const k = teamOf(u.id);
   if (!k || !S.q) return;
   const ok = (S.phase === 'question' && k === S.playing) || (S.phase === 'steal' && k === S.stealer);
-  if (!ok || activeOf(k)?.id !== u.id) return; // hanya pemain yang mendapat giliran yang dihitung
+  if (!ok || answerer(k)?.id !== u.id) return; // hanya pemain yang mendapat giliran yang dihitung
   const n = norm(text);
   if (n.length < 2) return;
-  const i = S.q.answers.findIndex(a => {
-    const an = norm(a.text);
-    return !a.open && (an === n || (an.length >= 3 && n.includes(an)));
-  });
+  const i = findAnswer(text);
+  if (i === -2) return; // terlalu ambigu (cocok ke beberapa jawaban): abaikan, bukan strike
   if (i >= 0) return reveal(i, u);
   // jawaban salah dari pemain yang mendapat giliran -> strike otomatis (perintah "!" diabaikan)
   if (!AUTO_STRIKE || text.startsWith('!')) return;
@@ -253,7 +285,7 @@ function admin(b) {
       if (S.phase === 'steal') { emit('stealfail'); return award(S.playing); }
       return;
     case 'timer': setTimer(Math.max(0, +b.sec || 0)); break;
-    case 'reset': clearTimeout(autoT); clearTimeout(revealT); S = fresh(); S.tiktok = { state: conn ? 'connected' : 'idle', username: wantUser }; setTimer(0); break;
+    case 'reset': clearTimeout(autoT); clearTimeout(revealT); clearTimeout(champT); S = fresh(); S.tiktok = { state: conn ? 'connected' : 'idle', username: wantUser }; setTimer(0); break;
     case 'connect': connect(b.username); return;
     case 'disconnect': disconnect(); return;
     case 'sim': return handleChat({ id: String(b.nick), nick: String(b.nick), avatar: '' }, b.text);
@@ -316,4 +348,5 @@ server.listen(PORT, () => {
   console.log(`Live (OBS) : http://localhost:${PORT}/live\nAdmin      : http://localhost:${PORT}/admin`);
   if (process.env.TIKTOK_USERNAME) connect(process.env.TIKTOK_USERNAME);
   if (['ready', 'qend', 'matchend'].includes(S.phase)) schedule(NEXT_MS); // lanjutkan game yang tersimpan setelah restart
+  if (S.phase === 'champion') scheduleLobby();
 });
