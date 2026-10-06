@@ -14,6 +14,10 @@ const MAX_PER_TEAM = +process.env.MAX_PER_TEAM || 5;
 const QPM = +process.env.QUESTIONS_PER_MATCH || 3;      // jumlah pertanyaan per match (seri -> tambah pertanyaan)
 const ANSWER_SEC = +process.env.ANSWER_SECONDS || 15;   // timer jawaban
 const AUTO_STRIKE = process.env.AUTO_STRIKE !== '1';    // jawaban salah / waktu habis = strike otomatis (set 0 untuk mematikan)
+const AUTO_NEXT = process.env.AUTO_NEXT !== '1';        // pertanyaan / match berikutnya jalan otomatis (set 0 untuk manual)
+const NEXT_MS = (+process.env.NEXT_DELAY_S || 6) * 1000;   // jeda setelah pertanyaan selesai
+const MATCH_MS = (+process.env.MATCH_DELAY_S || 10) * 1000; // jeda setelah match selesai
+const READY_MS = (+process.env.READY_DELAY_S || 5) * 1000;  // jeda 'bersiap' sebelum pertanyaan pertama match
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const STATE_FILE = path.join(DATA_DIR, 'state.json');
 const QUESTIONS = JSON.parse(fs.readFileSync(path.join(__dirname, 'questions.json'), 'utf8')).questions;
@@ -31,7 +35,7 @@ const fresh = () => ({
     { label: 'FINAL', t: [null, null], s: [0, 0], qs: 0, winner: null },
   ],
   q: null, qid: 0, strikes: 0, pot: 0, playing: null, stealer: null,
-  timerEnd: 0, used: [], champion: null, tiktok: { state: 'idle', username: '' },
+  timerEnd: 0, nextAt: 0, used: [], champion: null, tiktok: { state: 'idle', username: '' },
 });
 let S = fresh();
 try { S = { ...fresh(), ...JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')) }; } catch {}
@@ -84,6 +88,15 @@ const other = (m, k) => (m.t[0] === k ? m.t[1] : m.t[0]);
 const activeOf = k => { const t = S.teams[k]; return t?.players.length ? t.players[(t.turn || 0) % t.players.length] : null; };
 const adv = k => { if (S.teams[k]) S.teams[k].turn = (S.teams[k].turn || 0) + 1; };
 
+// lanjut otomatis ke langkah berikutnya (pertanyaan baru / match berikutnya / juara)
+let autoT;
+function schedule(ms) {
+  clearTimeout(autoT); S.nextAt = 0;
+  if (!AUTO_NEXT) return;
+  S.nextAt = Date.now() + ms;
+  autoT = setTimeout(() => { if (['ready', 'qend', 'matchend'].includes(S.phase)) next(); }, ms);
+}
+
 let timeT;
 function setTimer(sec) {
   clearTimeout(timeT);
@@ -125,7 +138,7 @@ function startQuestion() {
 function award(k) {
   const m = curM(), i = m.t.indexOf(k);
   if (k && S.pot && i >= 0) { m.s[i] += S.pot; S.teams[k].total += S.pot; }
-  S.phase = 'qend'; setTimer(0);
+  S.phase = 'qend'; setTimer(0); schedule(NEXT_MS);
   emit('award', { team: k, pot: S.pot }); push();
 }
 
@@ -158,11 +171,12 @@ function finishMatch() {
   const m = curM();
   m.winner = m.s[0] > m.s[1] ? m.t[0] : m.t[1];
   if (S.cur < 2) S.matches[2].t[S.cur] = m.winner; else S.champion = m.winner;
-  S.phase = 'matchend'; setTimer(0);
+  S.phase = 'matchend'; setTimer(0); schedule(MATCH_MS);
   emit('matchend', { winner: m.winner }); push();
 }
 
 function next() {
+  clearTimeout(autoT); S.nextAt = 0;
   const m = curM();
   if (S.phase === 'ready' || S.phase === 'qend') {
     if (m.qs >= QPM && m.s[0] !== m.s[1]) return finishMatch();
@@ -170,7 +184,7 @@ function next() {
   }
   if (S.phase === 'matchend') {
     if (S.cur >= 2) { S.phase = 'champion'; emit('champion'); return push(); }
-    S.cur++; S.phase = 'ready'; S.q = null; push();
+    S.cur++; S.phase = 'ready'; S.q = null; schedule(READY_MS); push();
   }
 }
 
@@ -214,7 +228,7 @@ function admin(b) {
     case 'start':
       if (S.phase !== 'lobby') return 'Game sudah dimulai';
       if (KEYS.some(k => !S.teams[k].players.length)) return 'Setiap tim minimal punya 1 pemain';
-      S.locked = true; S.phase = 'ready'; emit('start'); break;
+      S.locked = true; S.phase = 'ready'; schedule(READY_MS); emit('start'); break;
     case 'next': return next();
     case 'reveal': return reveal(+b.i);
     case 'strike': return strike();
@@ -223,7 +237,7 @@ function admin(b) {
       if (S.phase === 'steal') { emit('stealfail'); return award(S.playing); }
       return;
     case 'timer': setTimer(Math.max(0, +b.sec || 0)); break;
-    case 'reset': S = fresh(); S.tiktok = { state: conn ? 'connected' : 'idle', username: wantUser }; setTimer(0); break;
+    case 'reset': clearTimeout(autoT); S = fresh(); S.tiktok = { state: conn ? 'connected' : 'idle', username: wantUser }; setTimer(0); break;
     case 'connect': connect(b.username); return;
     case 'disconnect': disconnect(); return;
     case 'sim': return handleChat({ id: String(b.nick), nick: String(b.nick), avatar: '' }, b.text);
@@ -285,4 +299,5 @@ async function connect(username) {
 server.listen(PORT, () => {
   console.log(`Live (OBS) : http://localhost:${PORT}/live\nAdmin      : http://localhost:${PORT}/admin`);
   if (process.env.TIKTOK_USERNAME) connect(process.env.TIKTOK_USERNAME);
+  if (['ready', 'qend', 'matchend'].includes(S.phase)) schedule(NEXT_MS); // lanjutkan game yang tersimpan setelah restart
 });
