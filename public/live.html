@@ -77,11 +77,12 @@ section.on{display:block}
 
 /* lobby */
 #lobby h1,#champ h1{position:absolute;left:0;right:0;top:112px;text-align:center;font-family:'Lilita One';font-weight:400;font-size:36px}
-#lgrid{position:absolute;left:60px;right:60px;top:170px;display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}
+#lobby h1{top:150px;font-size:32px}
+#lgrid{position:absolute;left:60px;right:60px;top:206px;display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}
 #lgrid .team{padding:10px 14px;text-align:left}
 #lgrid h3{display:flex;justify-content:space-between;font-size:22px}
 #lgrid ul{display:grid;grid-template-columns:1fr 1fr;gap:0 8px;min-height:0}
-#lnote{position:absolute;left:0;right:0;bottom:70px;text-align:center;font-family:'Lilita One';font-size:28px;color:var(--gold)}
+#lnote{position:absolute;left:0;right:0;bottom:104px;text-align:center;font-family:'Lilita One';font-size:26px;color:var(--gold)}
 
 /* champion */
 #champ .trophy{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:90px}
@@ -99,10 +100,9 @@ canvas{position:absolute;inset:0;pointer-events:none;z-index:20}
 #bigx{font-size:300px;color:var(--red);text-shadow:0 0 60px var(--red);line-height:1}
 .show{animation:pop 1.5s forwards}
 @keyframes pop{0%{opacity:0;transform:translateY(-50%) scale(.5)}15%{opacity:1;transform:translateY(-50%) scale(1.1)}80%{opacity:1;transform:translateY(-50%) scale(1)}100%{opacity:0;transform:translateY(-50%) scale(1)}}
-#toasts{position:absolute;left:18px;bottom:96px;z-index:25;display:flex;flex-direction:column;gap:6px}
+#toasts{position:absolute;left:50%;transform:translateX(-50%);bottom:84px;z-index:25;display:flex;flex-direction:column;align-items:center;gap:6px}
 .toast{padding:8px 16px;border-radius:12px;background:rgba(3,10,43,.9);border:2px solid var(--gold);font-weight:800;font-size:15px;animation:tin .3s}
 @keyframes tin{from{transform:translateX(-30px);opacity:0}}
-#snd{position:absolute;right:10px;top:8px;z-index:40;font-size:12px;background:rgba(0,0,0,.6);padding:4px 10px;border-radius:8px;display:none}
 @media (prefers-reduced-motion:reduce){.beam{animation:none}}
 </style>
 </head>
@@ -145,7 +145,6 @@ canvas{position:absolute;inset:0;pointer-events:none;z-index:20}
   <div id="toasts"></div>
   <div id="banner"></div><div id="bigx">✕</div>
   <canvas id="cv" width="1280" height="720"></canvas>
-  <div id="snd">Klik layar untuk mengaktifkan suara</div>
 </div>
 
 <script>
@@ -160,11 +159,13 @@ addEventListener('resize', fit); fit();
 // ---------- SOUND (disintesis, tanpa file mp3) ----------
 const AC = new (window.AudioContext || window.webkitAudioContext)();
 const mute = location.search.includes('sound=0');
-const unlock = () => { AC.resume(); $('snd').style.display = 'none'; };
-addEventListener('pointerdown', unlock);
-setTimeout(() => { if (AC.state !== 'running' && !mute) $('snd').style.display = 'block'; }, 1500);
+// suara aktif otomatis (OBS Browser Source mengizinkan autoplay); di tab browser biasa, klik/tombol apa pun akan membukanya
+const unlock = () => { if (AC.state !== 'running') AC.resume().catch(() => {}); };
+unlock();
+['pointerdown', 'keydown'].forEach(e => addEventListener(e, unlock));
 function tone(f, d, type = 'sine', v = .18, at = 0) {
   if (mute) return;
+  unlock();
   const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + at;
   o.type = type; o.frequency.value = f;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .02); g.gain.exponentialRampToValueAtTime(.001, t + d);
@@ -172,6 +173,7 @@ function tone(f, d, type = 'sine', v = .18, at = 0) {
 }
 function applause() {
   if (mute) return;
+  unlock();
   const len = AC.sampleRate * 3, buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0);
   for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (Math.random() > .9 ? 1 : .25);
   const s = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
@@ -195,7 +197,7 @@ function bigX() { const b = $('bigx'); b.classList.remove('show'); void b.offset
 function toast(t) {
   const e = document.createElement('div'); e.className = 'toast'; e.textContent = t; $('toasts').appendChild(e);
   setTimeout(() => e.remove(), 4000);
-  while ($('toasts').children.length > 4) $('toasts').firstChild.remove();
+  while ($('toasts').children.length > 2) $('toasts').firstChild.remove();
 }
 const tn = k => S?.teams[k]?.name || k;
 
@@ -275,6 +277,7 @@ function render() {
     renderBoard();
   }
 
+  $('bracket').style.display = ph === 'champion' ? 'none' : 'flex';
   $('bracket').innerHTML = S.matches.map((x, i) => {
     const row = j => `<div class="${x.winner && x.winner === x.t[j] ? 'w' : ''}"><span>${x.t[j] ? esc(tn(x.t[j])) : '???'}</span><span>${x.t[j] ? x.s[j] : ''}</span></div>`;
     return `<div class="bm ${i === S.cur && ph !== 'lobby' && ph !== 'champion' ? 'cur' : ''}"><h6>${x.label}</h6>${row(0)}${row(1)}</div>`;
