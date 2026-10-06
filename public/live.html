@@ -42,7 +42,11 @@ section.on{display:block}
 .x.on{background:var(--red);border-color:#fff;color:#fff;box-shadow:0 0 14px var(--red)}
 .team ul{list-style:none;font-size:14px;font-weight:600;min-height:100px;text-align:left}
 .team li.act{background:var(--gold);color:#07154f;font-weight:800}
-.team li{padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.08);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team li{display:flex;align-items:center;gap:6px;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.08);margin-top:4px;white-space:nowrap}
+.team li .n{overflow:hidden;text-overflow:ellipsis}
+.av{position:relative;width:26px;height:26px;border-radius:50%;background:#2c63ff;border:2px solid var(--gold);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;overflow:hidden;flex:none}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.av.lg{width:40px;height:40px;font-size:17px}
 .team.play{box-shadow:0 0 0 4px #fff,0 0 40px var(--gold);transform:scale(1.03)}
 .team.steal{border-color:var(--red);box-shadow:0 0 0 4px #fff,0 0 40px var(--red)}
 .tag{margin-top:8px;font-weight:800;font-size:13px;color:var(--gold);height:18px}
@@ -86,13 +90,13 @@ section.on{display:block}
 #lgrid .team{padding:10px 14px;text-align:left}
 #lgrid h3{display:flex;justify-content:space-between;font-size:22px}
 #lgrid ul{display:grid;grid-template-columns:1fr 1fr;gap:0 8px;min-height:0}
-#lnote{position:absolute;left:0;right:0;bottom:104px;text-align:center;font-family:'Lilita One';font-size:26px;color:var(--gold)}
 
 /* champion */
 #champ .trophy{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:90px}
 #champ .cn{position:absolute;left:0;right:0;top:250px;text-align:center;font-family:'Lilita One';font-size:70px;color:var(--gold);text-shadow:0 5px 0 #7a5400}
 #champ .cs{position:absolute;left:0;right:0;top:335px;text-align:center;font-family:'Lilita One';font-size:34px}
-#rank{position:absolute;left:150px;right:150px;top:400px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px;font-weight:800;font-size:17px}
+#cback{position:absolute;left:0;right:0;top:376px;text-align:center;font-weight:800;font-size:16px;color:var(--gold)}
+#rank{position:absolute;left:150px;right:150px;top:410px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px;font-weight:800;font-size:17px}
 #rank div{display:flex;justify-content:space-between;padding:5px 12px;border-radius:10px;background:rgba(3,10,43,.65);border:2px solid #4a74e8}
 #rank h4{grid-column:span 2;color:var(--gold);font-family:'Lilita One';font-weight:400;font-size:22px}
 canvas{position:absolute;inset:0;pointer-events:none;z-index:20}
@@ -105,7 +109,7 @@ canvas{position:absolute;inset:0;pointer-events:none;z-index:20}
 .show{animation:pop 1.5s forwards}
 @keyframes pop{0%{opacity:0;transform:translateY(-50%) scale(.5)}15%{opacity:1;transform:translateY(-50%) scale(1.1)}80%{opacity:1;transform:translateY(-50%) scale(1)}100%{opacity:0;transform:translateY(-50%) scale(1)}}
 #toasts{position:absolute;left:50%;transform:translateX(-50%);bottom:84px;z-index:25;display:flex;flex-direction:column;align-items:center;gap:6px}
-.toast{padding:8px 16px;border-radius:12px;background:rgba(3,10,43,.9);border:2px solid var(--gold);font-weight:800;font-size:15px;animation:tin .3s}
+.toast{display:flex;align-items:center;gap:10px;padding:6px 16px;border-radius:12px;background:rgba(3,10,43,.9);border:2px solid var(--gold);font-weight:800;font-size:15px;animation:tin .3s}
 @keyframes tin{from{transform:translateX(-30px);opacity:0}}
 @media (prefers-reduced-motion:reduce){.beam{animation:none}}
 </style>
@@ -124,9 +128,8 @@ canvas{position:absolute;inset:0;pointer-events:none;z-index:20}
   <div id="mlabel"></div>
 
   <section id="lobby">
-    <h1>LOBBY · ketik <span style="color:var(--gold)">!join</span> di komentar</h1>
+    <h1>LOBBY · ketik <span style="color:var(--gold)">!join</span> di komentar · maks 5 pemain per tim</h1>
     <div id="lgrid"></div>
-    <div id="lnote"></div>
   </section>
 
   <section id="game">
@@ -143,6 +146,7 @@ canvas{position:absolute;inset:0;pointer-events:none;z-index:20}
   <section id="champ">
     <h1>JUARA FAMILY 100</h1>
     <div class="trophy">🏆</div><div class="cn" id="cn"></div><div class="cs" id="cs"></div>
+    <div id="cback"></div>
     <div id="rank"></div>
   </section>
 
@@ -199,13 +203,14 @@ const sfx = {
 // ---------- OVERLAY ----------
 function banner(t) { const b = $('banner'); b.textContent = t; b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
 function bigX() { const b = $('bigx'); b.classList.remove('show'); void b.offsetWidth; b.classList.add('show'); }
-function toast(t) {
-  const e = document.createElement('div'); e.className = 'toast'; e.textContent = t; $('toasts').appendChild(e);
+function toast(t, html) {
+  const e = document.createElement('div'); e.className = 'toast'; html ? (e.innerHTML = t) : (e.textContent = t); $('toasts').appendChild(e);
   setTimeout(() => e.remove(), 4000);
   while ($('toasts').children.length > 2) $('toasts').firstChild.remove();
 }
+const av = (p, cls = '') => `<span class="av ${cls}">${esc((p.nick || '?').trim().charAt(0).toUpperCase())}${p.avatar ? `<img src="${esc(p.avatar)}" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}</span>`;
 const tn = k => S?.teams[k]?.name || k;
-const activeOf = k => { const t = S?.teams[k]; return t && t.players.length ? t.players[(t.turn || 0) % t.players.length] : null; };
+const activeOf = (k, steal) => { const t = S?.teams[k]; return t && t.players.length ? t.players[steal ? 0 : (t.turn || 0) % t.players.length] : null; }; // steal = kapten (pemain pertama)
 
 function onEvent(e) {
   switch (e.kind) {
@@ -220,7 +225,7 @@ function onEvent(e) {
     case 'award': if (e.team) toast(`💰 ${tn(e.team)} mendapat ${e.pot} poin`); break;
     case 'matchend': sfx.victory(); applause(); banner(`${tn(e.winner)} MENANG!`); break;
     case 'champion': sfx.victory(); applause(); break;
-    case 'join': sfx.pop(); toast(`🎉 ${e.nick} bergabung → ${tn(e.team)}`); break;
+    case 'join': sfx.pop(); toast(`${av({ nick: e.nick, avatar: e.avatar }, 'lg')}<span>🎉 <b>${esc(e.nick)}</b> bergabung → ${esc(tn(e.team))}</span>`, true); break;
     case 'joinfail': toast(`⚠️ ${e.nick}: ${e.why}`); break;
   }
 }
@@ -230,11 +235,11 @@ function teamCard(k) {
   if (!k) return '<div class="team empty"><h3>MENUNGGU</h3></div>';
   const t = S.teams[k], m = S.matches[S.cur], idx = m.t.indexOf(k);
   const playing = S.playing === k && S.phase === 'question', stealing = S.stealer === k && S.phase === 'steal';
-  const ap = playing || stealing ? activeOf(k) : null;
+  const ap = playing || stealing ? activeOf(k, stealing) : null;
   const xs = [0, 1, 2].map(i => `<span class="x ${S.playing === k && i < S.strikes ? 'on' : ''}">✕</span>`).join('');
   return `<div class="team ${playing ? 'play' : ''} ${stealing ? 'play steal' : ''}">
     <h3>${esc(t.name)}</h3><div class="sc">${m.s[idx]}</div><div class="xs">${xs}</div>
-    <ul>${t.players.map(p => `<li class="${ap && ap.id === p.id ? 'act' : ''}">${ap && ap.id === p.id ? '🎤 ' : ''}${esc(p.nick)}</li>`).join('')}</ul>
+    <ul>${t.players.map((p, i) => `<li class="${ap && ap.id === p.id ? 'act' : ''}">${av(p)}<span class="n">${ap && ap.id === p.id ? '🎤 ' : ''}${i === 0 ? '👑 ' : ''}${esc(p.nick)}</span></li>`).join('')}</ul>
     <div class="tag">${playing ? 'GILIRAN MAIN' : stealing ? 'KESEMPATAN STEAL' : ''}</div></div>`;
 }
 
@@ -261,14 +266,13 @@ function render() {
   $('lobby').classList.toggle('on', ph === 'lobby');
   $('champ').classList.toggle('on', ph === 'champion');
   $('game').classList.toggle('on', !['lobby', 'champion'].includes(ph));
-  $('mlabel').textContent = ph === 'lobby' ? 'PENDAFTARAN PEMAIN' : ph === 'champion' ? 'HASIL AKHIR' : m.label;
+  $('mlabel').textContent = ph === 'lobby' ? (S.locked ? '🔒 PENDAFTARAN DIKUNCI' : 'PENDAFTARAN PEMAIN') : ph === 'champion' ? 'HASIL AKHIR' : m.label;
   $('mlabel').style.display = ph === 'champion' ? 'none' : 'block';
 
   if (ph === 'lobby') {
     $('lgrid').innerHTML = Object.entries(S.teams).map(([k, t]) =>
       `<div class="team"><h3><span>${esc(t.name)}</span><span style="color:var(--gold)">${t.players.length}/5</span></h3>
-       <ul>${t.players.map(p => `<li>${esc(p.nick)}</li>`).join('')}</ul></div>`).join('');
-    $('lnote').textContent = S.locked ? '🔒 Pendaftaran dikunci' : 'Maksimal 5 pemain per tim';
+       <ul>${t.players.map((p, i) => `<li>${av(p)}<span class="n">${i === 0 ? '👑 ' : ''}${esc(p.nick)}</span></li>`).join('')}</ul></div>`).join('');
   } else if (ph === 'champion') {
     const w = S.champion;
     $('cn').textContent = tn(w);
@@ -277,14 +281,14 @@ function render() {
     const players = Object.values(S.teams).flatMap(t => t.players).sort((a, b) => b.pts - a.pts).slice(0, 5);
     const medal = ['🥇', '🥈', '🥉', '4️⃣'];
     $('rank').innerHTML = '<h4>Klasemen Tim</h4>' + teams.map(([k, t], i) => `<div><span>${medal[i]} ${esc(t.name)}</span><span>${t.total}</span></div>`).join('')
-      + '<h4>Pemain Terbaik</h4>' + players.map((p, i) => `<div><span>${i + 1}. ${esc(p.nick)}</span><span>${p.pts}</span></div>`).join('');
+      + '<h4>Pemain Terbaik</h4>' + players.map((p, i) => `<div><span style="display:flex;align-items:center;gap:6px">${i + 1}. ${av(p)}${esc(p.nick)}</span><span>${p.pts}</span></div>`).join('');
     if (!confettiOn) startConfetti();
   } else {
     $('tL').innerHTML = teamCard(m.t[0]); $('tR').innerHTML = teamCard(m.t[1]);
     $('qbox').textContent = S.q && ph !== 'ready' ? S.q.text : (ph === 'matchend' ? `${tn(m.winner)} MENANG!` : 'BERSIAP... pertandingan segera dimulai');
     $('potv').textContent = S.pot;
-    const ak = ph === 'question' ? S.playing : ph === 'steal' ? S.stealer : null, ap = ak && activeOf(ak);
-    $('turn').innerHTML = ap ? `🎤 Giliran menjawab: <b>${esc(ap.nick)}</b> (${esc(tn(ak))})` : '';
+    const ak = ph === 'question' ? S.playing : ph === 'steal' ? S.stealer : null, ap = ak && activeOf(ak, ph === 'steal');
+    $('turn').innerHTML = ap ? (ph === 'steal' ? `🎤 Kesempatan steal, kapten <b>${esc(ap.nick)}</b> (${esc(tn(ak))})` : `🎤 Giliran menjawab: <b>${esc(ap.nick)}</b> (${esc(tn(ak))})`) : '';
     renderBoard();
   }
 
@@ -298,10 +302,11 @@ function render() {
 // timer (pakai offset jam server)
 setInterval(() => {
   if (!S) return;
-  if (['ready', 'qend', 'matchend'].includes(S.phase) && S.nextAt) {
+  if (S.nextAt) {
     const l = Math.max(0, Math.ceil((S.nextAt - (Date.now() + off)) / 1000));
-    $('turn').textContent = `⏭ Lanjut otomatis dalam ${l} detik`;
-  }
+    if (['ready', 'qend', 'matchend'].includes(S.phase)) $('turn').textContent = `⏭ Lanjut otomatis dalam ${l} detik`;
+    if (S.phase === 'champion') $('cback').textContent = `Kembali ke lobby dalam ${l} detik`;
+  } else if (S.phase === 'champion') $('cback').textContent = '';
   const el = $('timer');
   const active = ['question', 'steal'].includes(S.phase) && S.timerEnd;
   if (!active) { el.textContent = '--'; el.classList.remove('low'); lastLeft = null; return; }
