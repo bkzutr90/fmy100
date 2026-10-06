@@ -146,7 +146,10 @@ function join(u) {
   if (S.phase !== 'lobby') return emit('joinfail', { nick: u.nick, why: 'Pendaftaran sudah ditutup' });
   if (S.locked) return emit('joinfail', { nick: u.nick, why: 'Pendaftaran dikunci' });
   if (teamOf(u.id)) return emit('joinfail', { nick: u.nick, why: 'Kamu sudah bergabung' });
-  const k = KEYS.find(k => S.teams[k].players.length < MAX_PER_TEAM);
+  // prioritas tim yang paling sedikit pemainnya (tim kosong diisi dulu), seri -> urutan A, B, C, D
+  const open = KEYS.filter(k => S.teams[k].players.length < MAX_PER_TEAM);
+  const least = Math.min(...open.map(k => S.teams[k].players.length));
+  const k = open.find(k => S.teams[k].players.length === least);
   if (!k) return emit('joinfail', { nick: u.nick, why: 'Semua tim penuh' });
   S.teams[k].players.push({ id: u.id, nick: u.nick, avatar: u.avatar || '', pts: 0 });
   emit('join', { nick: u.nick, team: k, avatar: u.avatar || '' });
