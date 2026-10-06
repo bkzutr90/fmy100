@@ -111,7 +111,7 @@ function render() {
   const m = S.matches[S.cur], ph = S.phase;
   const nm = k => (k ? S.teams[k].name : '-');
   $('stat').innerHTML = `<span>Fase: <b>${ph}</b></span><span>Match: <b>${m.label}</b> (${nm(m.t[0])} ${m.s[0]} : ${m.s[1]} ${nm(m.t[1])})</span>
-    <span>Main: <b>${nm(S.playing)}</b></span><span>Giliran: <b>${(() => { const k = ph === 'question' ? S.playing : ph === 'steal' ? S.stealer : null, t = k && S.teams[k]; return t && t.players.length ? esc(t.players[(t.turn || 0) % t.players.length].nick) : '-'; })()}</b></span><span>Strike: <b>${S.strikes}/3</b></span><span>Pot: <b>${S.pot}</b></span>`;
+    <span>Main: <b>${nm(S.playing)}</b></span><span>Giliran: <b>${(() => { const k = ph === 'question' ? S.playing : ph === 'steal' ? S.stealer : null, t = k && S.teams[k]; return t && t.players.length ? esc(t.players[(ph === 'steal' ? 0 : (t.turn || 0)) % t.players.length].nick) : '-'; })()}</b></span><span>Strike: <b>${S.strikes}/3</b></span><span>Pot: <b>${S.pot}</b></span>`;
   $('bStart').disabled = ph !== 'lobby';
   $('bNext').disabled = !['ready', 'qend', 'matchend'].includes(ph);
   $('bNext').textContent = ph === 'matchend' ? (S.cur >= 2 ? 'Tampilkan juara' : 'Match berikutnya') : ph === 'qend' && m.qs >= 3 ? 'Lanjut / selesaikan match' : 'Pertanyaan berikutnya';
