@@ -295,6 +295,10 @@ function render() {
 // timer (pakai offset jam server)
 setInterval(() => {
   if (!S) return;
+  if (['ready', 'qend', 'matchend'].includes(S.phase) && S.nextAt) {
+    const l = Math.max(0, Math.ceil((S.nextAt - (Date.now() + off)) / 1000));
+    $('turn').textContent = `⏭ Lanjut otomatis dalam ${l} detik`;
+  }
   const el = $('timer');
   const active = ['question', 'steal'].includes(S.phase) && S.timerEnd;
   if (!active) { el.textContent = '--'; el.classList.remove('low'); lastLeft = null; return; }
