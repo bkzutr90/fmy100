@@ -15,9 +15,10 @@ const QPM = +process.env.QUESTIONS_PER_MATCH || 3;      // jumlah pertanyaan per
 const ANSWER_SEC = +process.env.ANSWER_SECONDS || 15;   // timer jawaban
 const AUTO_STRIKE = process.env.AUTO_STRIKE !== '1';    // jawaban salah / waktu habis = strike otomatis (set 0 untuk mematikan)
 const AUTO_NEXT = process.env.AUTO_NEXT !== '1';        // pertanyaan / match berikutnya jalan otomatis (set 0 untuk manual)
-const NEXT_MS = (+process.env.NEXT_DELAY_S || 6) * 1000;   // jeda setelah pertanyaan selesai
+const NEXT_MS = (+process.env.NEXT_DELAY_S || 10) * 1000;   // jeda setelah pertanyaan selesai
 const MATCH_MS = (+process.env.MATCH_DELAY_S || 10) * 1000; // jeda setelah match selesai
-const READY_MS = (+process.env.READY_DELAY_S || 5) * 1000;  // jeda 'bersiap' sebelum pertanyaan pertama match
+const READY_MS = (+process.env.READY_DELAY_S || 10) * 1000;  // jeda 'bersiap' sebelum pertanyaan pertama match
+const REVEAL_GAP_MS = +process.env.REVEAL_GAP_MS || 900;  // jeda antar jawaban yang dibuka otomatis di akhir pertanyaan
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const STATE_FILE = path.join(DATA_DIR, 'state.json');
 const QUESTIONS = JSON.parse(fs.readFileSync(path.join(__dirname, 'questions.json'), 'utf8')).questions;
@@ -97,6 +98,21 @@ function schedule(ms) {
   autoT = setTimeout(() => { if (['ready', 'qend', 'matchend'].includes(S.phase)) next(); }, ms);
 }
 
+// akhir pertanyaan: buka sisa jawaban satu per satu (tanpa poin), baru lanjut otomatis
+let revealT;
+function revealRest() {
+  clearTimeout(revealT);
+  const step = () => {
+    if (S.phase !== 'qend' || !S.q) return;
+    const a = S.q.answers.find(x => !x.open);
+    if (!a) return schedule(NEXT_MS);
+    a.open = true; a.by = ''; a.missed = true;
+    emit('reveal'); push();
+    revealT = setTimeout(step, REVEAL_GAP_MS);
+  };
+  revealT = setTimeout(step, 1500);
+}
+
 let timeT;
 function setTimer(sec) {
   clearTimeout(timeT);
@@ -138,7 +154,7 @@ function startQuestion() {
 function award(k) {
   const m = curM(), i = m.t.indexOf(k);
   if (k && S.pot && i >= 0) { m.s[i] += S.pot; S.teams[k].total += S.pot; }
-  S.phase = 'qend'; setTimer(0); schedule(NEXT_MS);
+  S.phase = 'qend'; setTimer(0); clearTimeout(autoT); S.nextAt = 0; revealRest();
   emit('award', { team: k, pot: S.pot }); push();
 }
 
@@ -176,7 +192,7 @@ function finishMatch() {
 }
 
 function next() {
-  clearTimeout(autoT); S.nextAt = 0;
+  clearTimeout(autoT); clearTimeout(revealT); S.nextAt = 0;
   const m = curM();
   if (S.phase === 'ready' || S.phase === 'qend') {
     if (m.qs >= QPM && m.s[0] !== m.s[1]) return finishMatch();
@@ -237,7 +253,7 @@ function admin(b) {
       if (S.phase === 'steal') { emit('stealfail'); return award(S.playing); }
       return;
     case 'timer': setTimer(Math.max(0, +b.sec || 0)); break;
-    case 'reset': clearTimeout(autoT); S = fresh(); S.tiktok = { state: conn ? 'connected' : 'idle', username: wantUser }; setTimer(0); break;
+    case 'reset': clearTimeout(autoT); clearTimeout(revealT); S = fresh(); S.tiktok = { state: conn ? 'connected' : 'idle', username: wantUser }; setTimer(0); break;
     case 'connect': connect(b.username); return;
     case 'disconnect': disconnect(); return;
     case 'sim': return handleChat({ id: String(b.nick), nick: String(b.nick), avatar: '' }, b.text);
