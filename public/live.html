@@ -41,6 +41,7 @@ section.on{display:block}
 .x{width:36px;height:36px;border-radius:8px;border:2px solid rgba(255,255,255,.25);color:transparent;font-weight:800;font-size:24px;line-height:32px}
 .x.on{background:var(--red);border-color:#fff;color:#fff;box-shadow:0 0 14px var(--red)}
 .team ul{list-style:none;font-size:14px;font-weight:600;min-height:100px;text-align:left}
+.team li.act{background:var(--gold);color:#07154f;font-weight:800}
 .team li{padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.08);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .team.play{box-shadow:0 0 0 4px #fff,0 0 40px var(--gold);transform:scale(1.03)}
 .team.steal{border-color:var(--red);box-shadow:0 0 0 4px #fff,0 0 40px var(--red)}
@@ -50,6 +51,8 @@ section.on{display:block}
 #center{position:absolute;left:300px;right:300px;top:140px}
 #qbox{border:4px solid var(--gold);border-radius:20px;background:linear-gradient(#0f2fa5,#071a66);padding:14px 20px;text-align:center;
   font-family:'Lilita One';font-size:26px;line-height:1.15;min-height:84px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(58,134,255,.6)}
+#turn{text-align:center;font-family:'Lilita One';font-size:22px;height:30px;margin-top:8px;color:#fff}
+#turn b{color:var(--gold);font-weight:400}
 #board{display:grid;grid-template-columns:1fr;gap:6px;margin-top:10px}
 .ans{height:42px;border-radius:12px;display:flex;align-items:center;padding:0 12px;gap:12px;background:linear-gradient(#1a46d6,#0d2c9c);
   border:3px solid #6f9cff;font-family:'Lilita One';font-size:23px;position:relative;overflow:hidden}
@@ -129,6 +132,7 @@ canvas{position:absolute;inset:0;pointer-events:none;z-index:20}
     <div class="side" id="tL"></div>
     <div id="center">
       <div id="qbox"></div>
+      <div id="turn"></div>
       <div id="board"></div>
       <div id="info"><div id="pot">POT <span id="potv">0</span></div><div id="timer">--</div></div>
     </div>
@@ -200,6 +204,7 @@ function toast(t) {
   while ($('toasts').children.length > 2) $('toasts').firstChild.remove();
 }
 const tn = k => S?.teams[k]?.name || k;
+const activeOf = k => { const t = S?.teams[k]; return t && t.players.length ? t.players[(t.turn || 0) % t.players.length] : null; };
 
 function onEvent(e) {
   switch (e.kind) {
@@ -223,10 +228,11 @@ function teamCard(k) {
   if (!k) return '<div class="team empty"><h3>MENUNGGU</h3></div>';
   const t = S.teams[k], m = S.matches[S.cur], idx = m.t.indexOf(k);
   const playing = S.playing === k && S.phase === 'question', stealing = S.stealer === k && S.phase === 'steal';
+  const ap = playing || stealing ? activeOf(k) : null;
   const xs = [0, 1, 2].map(i => `<span class="x ${S.playing === k && i < S.strikes ? 'on' : ''}">✕</span>`).join('');
   return `<div class="team ${playing ? 'play' : ''} ${stealing ? 'play steal' : ''}">
     <h3>${esc(t.name)}</h3><div class="sc">${m.s[idx]}</div><div class="xs">${xs}</div>
-    <ul>${t.players.map(p => `<li>${esc(p.nick)}</li>`).join('')}</ul>
+    <ul>${t.players.map(p => `<li class="${ap && ap.id === p.id ? 'act' : ''}">${ap && ap.id === p.id ? '🎤 ' : ''}${esc(p.nick)}</li>`).join('')}</ul>
     <div class="tag">${playing ? 'GILIRAN MAIN' : stealing ? 'KESEMPATAN STEAL' : ''}</div></div>`;
 }
 
@@ -274,6 +280,8 @@ function render() {
     $('tL').innerHTML = teamCard(m.t[0]); $('tR').innerHTML = teamCard(m.t[1]);
     $('qbox').textContent = S.q && ph !== 'ready' ? S.q.text : (ph === 'matchend' ? `${tn(m.winner)} MENANG!` : 'BERSIAP... pertandingan segera dimulai');
     $('potv').textContent = S.pot;
+    const ak = ph === 'question' ? S.playing : ph === 'steal' ? S.stealer : null, ap = ak && activeOf(ak);
+    $('turn').innerHTML = ap ? `🎤 Giliran menjawab: <b>${esc(ap.nick)}</b> (${esc(tn(ak))})` : '';
     renderBoard();
   }
 
