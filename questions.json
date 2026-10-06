@@ -103,6 +103,110 @@
     { "id": 51, "question": "Sebutkan alat musik", "answers": [
       {"text": "Gitar", "score": 35}, {"text": "Piano", "score": 25}, {"text": "Drum", "score": 18}, {"text": "Suling", "score": 12}, {"text": "Angklung", "score": 10} ] },
     { "id": 52, "question": "Sebutkan kegiatan di malam hari", "answers": [
-      {"text": "Tidur", "score": 40}, {"text": "Nonton TV", "score": 20}, {"text": "Makan malam", "score": 15}, {"text": "Belajar", "score": 15}, {"text": "Ronda", "score": 10} ] }
+      {"text": "Tidur", "score": 40}, {"text": "Nonton TV", "score": 20}, {"text": "Makan malam", "score": 15}, {"text": "Belajar", "score": 15}, {"text": "Ronda", "score": 10} ] },
+    { "id": 53, "question": "Sebutkan jenis minuman kopi yang populer", "answers": [
+      {"text": "Kopi susu", "score": 35}, {"text": "Americano", "score": 25}, {"text": "Espresso", "score": 18}, {"text": "Cappuccino", "score": 12}, {"text": "Latte", "score": 10} ] },
+    { "id": 54, "question": "Sebutkan barang yang sering hilang di rumah", "answers": [
+      {"text": "Remote TV", "score": 35}, {"text": "Kunci", "score": 25}, {"text": "Gunting kuku", "score": 18}, {"text": "Kacamata", "score": 12}, {"text": "Korek api", "score": 10} ] },
+    { "id": 55, "question": "Sebutkan rasa es krim yang paling umum", "answers": [
+      {"text": "Cokelat", "score": 35}, {"text": "Vanila", "score": 30}, {"text": "Stroberi", "score": 20}, {"text": "Matcha", "score": 8}, {"text": "Kopi", "score": 7} ] },
+    { "id": 56, "question": "Sebutkan hewan yang berjalan lambat", "answers": [
+      {"text": "Kura-kura", "score": 40}, {"text": "Siput", "score": 30}, {"text": "Kungkang", "score": 15}, {"text": "Bekicot", "score": 10}, {"text": "Bunglon", "score": 5} ] },
+    { "id": 57, "question": "Sebutkan makanan olahan dari kedelai", "answers": [
+      {"text": "Tempe", "score": 40}, {"text": "Tahu", "score": 35}, {"text": "Kecap", "score": 12}, {"text": "Susu kedelai", "score": 8}, {"text": "Tauco", "score": 5} ] },
+    { "id": 58, "question": "Sebutkan perlengkapan saat musim hujan", "answers": [
+      {"text": "Payung", "score": 40}, {"text": "Jas hujan", "score": 35}, {"text": "Jaket", "score": 12}, {"text": "Sepatu bot", "score": 8}, {"text": "Sandal", "score": 5} ] },
+    { "id": 59, "question": "Sebutkan hewan berkaki empat", "answers": [
+      {"text": "Kucing", "score": 30}, {"text": "Kambing", "score": 25}, {"text": "Sapi", "score": 20}, {"text": "Kuda", "score": 15}, {"text": "Anjing", "score": 10} ] },
+    { "id": 60, "question": "Sebutkan jenis olahraga air", "answers": [
+      {"text": "Renang", "score": 40}, {"text": "Selancar", "score": 20}, {"text": "Polo air", "score": 15}, {"text": "Arung jeram", "score": 15}, {"text": "Menyelam", "score": 10} ] },
+    { "id": 61, "question": "Sebutkan perabotan di dapur untuk memasak air", "answers": [
+      {"text": "Ketel", "score": 35}, {"text": "Panci", "score": 30}, {"text": "Dispenser", "score": 20}, {"text": "Teko listrik", "score": 10}, {"text": "Termos", "score": 5} ] },
+    { "id": 62, "question": "Sebutkan hewan yang bertelur", "answers": [
+      {"text": "Ayam", "score": 35}, {"text": "Bebek", "score": 25}, {"text": "Burung", "score": 20}, {"text": "Penyu", "score": 12}, {"text": "Ular", "score": 8} ] },
+    { "id": 63, "question": "Sebutkan destinasi wisata alam", "answers": [
+      {"text": "Gunung", "score": 35}, {"text": "Pantai", "score": 30}, {"text": "Air terjun", "score": 18}, {"text": "Danau", "score": 10}, {"text": "Hutan", "score": 7} ] },
+    { "id": 64, "question": "Sebutkan rasa makanan selain pedas", "answers": [
+      {"text": "Manis", "score": 35}, {"text": "Asin", "score": 25}, {"text": "Asam", "score": 20}, {"text": "Pahit", "score": 12}, {"text": "Gurih", "score": 8} ] },
+    { "id": 65, "question": "Sebutkan jenis alas kaki", "answers": [
+      {"text": "Sandal", "score": 35}, {"text": "Sepatu", "score": 30}, {"text": "Sepatu bot", "score": 15}, {"text": "Selop", "score": 12}, {"text": "Hak tinggi", "score": 8} ] },
+    { "id": 66, "question": "Sebutkan barang yang biasa ada di dompet", "answers": [
+      {"text": "Uang kertas", "score": 40}, {"text": "KTP", "score": 25}, {"text": "Kartu ATM", "score": 20}, {"text": "Foto", "score": 8}, {"text": "Struk belanja", "score": 7} ] },
+    { "id": 67, "question": "Sebutkan profesi di bidang kesehatan", "answers": [
+      {"text": "Dokter", "score": 40}, {"text": "Perawat", "score": 25}, {"text": "Bidan", "score": 15}, {"text": "Apoteker", "score": 12}, {"text": "Dokter gigi", "score": 8} ] },
+    { "id": 68, "question": "Sebutkan hewan yang suka makan wortel", "answers": [
+      {"text": "Kelinci", "score": 50}, {"text": "Kuda", "score": 20}, {"text": "Marmut", "score": 15}, {"text": "Hamster", "score": 10}, {"text": "Kambing", "score": 5} ] },
+    { "id": 69, "question": "Sebutkan jenis gorengan yang sering dijual", "answers": [
+      {"text": "Bakwan", "score": 35}, {"text": "Pisang goreng", "score": 25}, {"text": "Tahu isi", "score": 20}, {"text": "Tempe mendoan", "score": 12}, {"text": "Cireng", "score": 8} ] },
+    { "id": 70, "question": "Sebutkan bunga yang sering dijadikan hadiah", "answers": [
+      {"text": "Mawar", "score": 45}, {"text": "Melati", "score": 20}, {"text": "Tulip", "score": 15}, {"text": "Anggrek", "score": 12}, {"text": "Matahari", "score": 8} ] },
+    { "id": 71, "question": "Sebutkan hal yang menyebabkan orang menangis", "answers": [
+      {"text": "Sedih", "score": 40}, {"text": "Mengiris bawang", "score": 25}, {"text": "Sakit fisik", "score": 18}, {"text": "Terharu", "score": 10}, {"text": "Kelilipan", "score": 7} ] },
+    { "id": 72, "question": "Sebutkan perlengkapan bayi", "answers": [
+      {"text": "Popok", "score": 35}, {"text": "Botol susu", "score": 25}, {"text": "Bedak", "score": 18}, {"text": "Kereta dorong", "score": 12}, {"text": "Dot", "score": 10} ] },
+    { "id": 73, "question": "Sebutkan hewan yang bisa berenang", "answers": [
+      {"text": "Ikan", "score": 40}, {"text": "Bebek", "score": 25}, {"text": "Katak", "score": 15}, {"text": "Buaya", "score": 12}, {"text": "Anjing laut", "score": 8} ] },
+    { "id": 74, "question": "Sebutkan jenis topping piza", "answers": [
+      {"text": "Keju", "score": 35}, {"text": "Sosis", "score": 25}, {"text": "Daging asap", "score": 20}, {"text": "Jamur", "score": 12}, {"text": "Paprika", "score": 8} ] },
+    { "id": 75, "question": "Sebutkan alat untuk membersihkan rumah", "answers": [
+      {"text": "Sapu", "score": 35}, {"text": "Pel", "score": 25}, {"text": "Kemoceng", "score": 20}, {"text": "Pengki", "score": 12}, {"text": "Penyedot debu", "score": 8} ] },
+    { "id": 76, "question": "Sebutkan benda tajam di rumah", "answers": [
+      {"text": "Pisau", "score": 40}, {"text": "Gunting", "score": 30}, {"text": "Jarum", "score": 15}, {"text": "Silet", "score": 10}, {"text": "Paku", "score": 5} ] },
+    { "id": 77, "question": "Sebutkan makanan berbahan dasar ayam", "answers": [
+      {"text": "Ayam goreng", "score": 35}, {"text": "Ayam bakar", "score": 25}, {"text": "Sate ayam", "score": 20}, {"text": "Soto ayam", "score": 12}, {"text": "Opor ayam", "score": 8} ] },
+    { "id": 78, "question": "Sebutkan hal yang dilakukan di salon atau barbershop", "answers": [
+      {"text": "Potong rambut", "score": 45}, {"text": "Keramas", "score": 20}, {"text": "Cat rambut", "score": 15}, {"text": "Cukur jenggot", "score": 12}, {"text": "Creambath", "score": 8} ] },
+    { "id": 79, "question": "Sebutkan makanan olahan telur", "answers": [
+      {"text": "Telur dadar", "score": 35}, {"text": "Telur ceplok", "score": 30}, {"text": "Telur rebus", "score": 18}, {"text": "Telur balado", "score": 10}, {"text": "Telur gulung", "score": 7} ] },
+    { "id": 80, "question": "Sebutkan hewan yang aktif di malam hari", "answers": [
+      {"text": "Burung hantu", "score": 40}, {"text": "Kelelawar", "score": 30}, {"text": "Tikus", "score": 15}, {"text": "Musang", "score": 8}, {"text": "Kucing", "score": 7} ] },
+    { "id": 81, "question": "Sebutkan buah yang memiliki biji banyak", "answers": [
+      {"text": "Semangka", "score": 35}, {"text": "Pepaya", "score": 30}, {"text": "Jambu biji", "score": 18}, {"text": "Buah naga", "score": 10}, {"text": "Markisa", "score": 7} ] },
+    { "id": 82, "question": "Sebutkan alasan orang berolahraga", "answers": [
+      {"text": "Sehat", "score": 40}, {"text": "Menurunkan berat badan", "score": 30}, {"text": "Membentuk otot", "score": 15}, {"text": "Hobi", "score": 8}, {"text": "Menghilangkan stres", "score": 7} ] },
+    { "id": 83, "question": "Sebutkan perlengkapan makan di meja", "answers": [
+      {"text": "Sendok", "score": 35}, {"text": "Garpu", "score": 25}, {"text": "Piring", "score": 20}, {"text": "Gelas", "score": 12}, {"text": "Mangkuk", "score": 8} ] },
+    { "id": 84, "question": "Sebutkan jenis kendaraan roda dua", "answers": [
+      {"text": "Motor", "score": 45}, {"text": "Sepeda", "score": 35}, {"text": "Skuter", "score": 10}, {"text": "Sepeda listrik", "score": 6}, {"text": "Moped", "score": 4} ] },
+    { "id": 85, "question": "Sebutkan benda di dalam kotak pensil", "answers": [
+      {"text": "Pensil", "score": 35}, {"text": "Pulpen", "score": 30}, {"text": "Penghapus", "score": 18}, {"text": "Rautan", "score": 10}, {"text": "Penggaris", "score": 7} ] },
+    { "id": 86, "question": "Sebutkan hewan penghasil susu yang dikonsumsi manusia", "answers": [
+      {"text": "Sapi", "score": 50}, {"text": "Kambing", "score": 25}, {"text": "Kuda", "score": 12}, {"text": "Unta", "score": 8}, {"text": "Kerbau", "score": 5} ] },
+    { "id": 87, "question": "Sebutkan bagian tubuh yang bisa dipasangi perhiasan", "answers": [
+      {"text": "Telinga", "score": 35}, {"text": "Jari", "score": 30}, {"text": "Leher", "score": 20}, {"text": "Pergelangan tangan", "score": 10}, {"text": "Hidung", "score": 5} ] },
+    { "id": 88, "question": "Sebutkan profesi yang bekerja di laut", "answers": [
+      {"text": "Nelayan", "score": 45}, {"text": "Pelaut", "score": 25}, {"text": "Nakhoda", "score": 15}, {"text": "Penyelam", "score": 10}, {"text": "Penjaga pantai", "score": 5} ] },
+    { "id": 89, "question": "Sebutkan hal yang biasa ada di taman kota", "answers": [
+      {"text": "Bangku taman", "score": 35}, {"text": "Pohon", "score": 25}, {"text": "Lampu taman", "score": 18}, {"text": "Air mancur", "score": 12}, {"text": "Ayunan", "score": 10} ] },
+    { "id": 90, "question": "Sebutkan makanan berkuah khas Indonesia", "answers": [
+      {"text": "Bakso", "score": 35}, {"text": "Soto", "score": 30}, {"text": "Rawon", "score": 15}, {"text": "Sayur asem", "score": 12}, {"text": "Sop buntut", "score": 8} ] },
+    { "id": 91, "question": "Sebutkan hal yang dicari saat lapar tengah malam", "answers": [
+      {"text": "Mi instan", "score": 45}, {"text": "Nasi goreng", "score": 25}, {"text": "Roti", "score": 15}, {"text": "Camilan", "score": 10}, {"text": "Telur", "score": 5} ] },
+    { "id": 92, "question": "Sebutkan perlengkapan berkemah", "answers": [
+      {"text": "Tenda", "score": 45}, {"text": "Kantong tidur", "score": 20}, {"text": "Senter", "score": 15}, {"text": "Kompor portabel", "score": 12}, {"text": "Matras", "score": 8} ] },
+    { "id": 93, "question": "Sebutkan serangga yang sering masuk ke dalam rumah", "answers": [
+      {"text": "Nyamuk", "score": 35}, {"text": "Lalat", "score": 25}, {"text": "Kecoa", "score": 20}, {"text": "Semut", "score": 12}, {"text": "Laba-laba", "score": 8} ] },
+    { "id": 94, "question": "Sebutkan perlengkapan mandi selain sabun dan sampo", "answers": [
+      {"text": "Sikat gigi", "score": 35}, {"text": "Pasta gigi", "score": 30}, {"text": "Handuk", "score": 20}, {"text": "Gayung", "score": 10}, {"text": "Spons mandi", "score": 5} ] },
+    { "id": 95, "question": "Sebutkan benda yang ada di atas meja kantor", "answers": [
+      {"text": "Laptop", "score": 35}, {"text": "Mouse", "score": 20}, {"text": "Pulpen", "score": 18}, {"text": "Cangkir", "score": 15}, {"text": "Buku catatan", "score": 12} ] },
+    { "id": 96, "question": "Sebutkan buah yang berasa asam", "answers": [
+      {"text": "Lemon", "score": 35}, {"text": "Jeruk nipis", "score": 30}, {"text": "Mangga muda", "score": 18}, {"text": "Kedondong", "score": 10}, {"text": "Belimbing wuluh", "score": 7} ] },
+    { "id": 97, "question": "Sebutkan genre film yang populer", "answers": [
+      {"text": "Horor", "score": 35}, {"text": "Aksi", "score": 25}, {"text": "Komedi", "score": 20}, {"text": "Romantis", "score": 12}, {"text": "Animasi", "score": 8} ] },
+    { "id": 98, "question": "Sebutkan benda di bandara", "answers": [
+      {"text": "Pesawat", "score": 40}, {"text": "Koper", "score": 25}, {"text": "Papan jadwal", "score": 15}, {"text": "Troli", "score": 12}, {"text": "Metal detector", "score": 8} ] },
+    { "id": 99, "question": "Sebutkan jenis kendaraan roda empat atau lebih", "answers": [
+      {"text": "Mobil", "score": 40}, {"text": "Bus", "score": 25}, {"text": "Truk", "score": 20}, {"text": "Angkot", "score": 10}, {"text": "Taksi", "score": 5} ] },
+    { "id": 100, "question": "Sebutkan jenis unggas yang sering diternakkan", "answers": [
+      {"text": "Ayam", "score": 45}, {"text": "Bebek", "score": 25}, {"text": "Burung puyuh", "score": 15}, {"text": "Angsa", "score": 10}, {"text": "Kalkun", "score": 5} ] },
+    { "id": 101, "question": "Sebutkan benda yang membutuhkan baterai untuk menyala", "answers": [
+      {"text": "Jam dinding", "score": 35}, {"text": "Remote", "score": 30}, {"text": "Senter", "score": 18}, {"text": "Mainan anak", "score": 10}, {"text": "Mouse nirkabel", "score": 7} ] },
+    { "id": 102, "question": "Sebutkan makanan penutup yang manis", "answers": [
+      {"text": "Puding", "score": 35}, {"text": "Kue", "score": 25}, {"text": "Es krim", "score": 20}, {"text": "Buah potong", "score": 12}, {"text": "Donat", "score": 8} ] },
+    { "id": 103, "question": "Sebutkan tempat menyimpan uang selain dompet", "answers": [
+      {"text": "Bank", "score": 45}, {"text": "Celengan", "score": 30}, {"text": "Brankas", "score": 15}, {"text": "Bawah kasur", "score": 6}, {"text": "Saku baju", "score": 4} ] },
+    { "id": 104, "question": "Sebutkan perlengkapan sekolah saat upacara bendera", "answers": [
+      {"text": "Topi", "score": 40}, {"text": "Dasi", "score": 30}, {"text": "Sepatu hitam", "score": 15}, {"text": "Kaos kaki putih", "score": 10}, {"text": "Ikat pinggang", "score": 5} ] }
   ]
 }
